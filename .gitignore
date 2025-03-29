@@ -1,0 +1,24 @@
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Backup files
+*~
+*.bak
+*.swp
+
+# OS specific files
+.DS_Store
+.directory
+.Trash-*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
