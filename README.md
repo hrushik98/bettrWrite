@@ -2,11 +2,11 @@
 
 # Grammar Correction Tool for Linux
 
-A simple yet powerful tool that lets you correct grammar in any text by selecting it and pressing a keyboard shortcut (Ctrl+E). The tool sends the selected text to OpenAI's API, gets a grammatically corrected version, and automatically replaces the original text.
+A simple yet powerful tool that lets you correct grammar in any text by selecting it and pressing a keyboard shortcut (ctrl+e). The tool sends the selected text to OpenAI's API, gets a grammatically corrected version, and automatically replaces the original text.
 
 ## Features
 
-- One-key shortcut (Ctrl+E) for quick grammar corrections
+- One-key shortcut (ctrl+e) for quick grammar corrections
 - Works across all Linux applications
 - Uses OpenAI's latest GPT-4o model for high-quality corrections
 - Preserves text meaning while fixing grammatical issues
@@ -68,7 +68,7 @@ A simple yet powerful tool that lets you correct grammar in any text by selectin
 ## Usage
 
 1. Select text in any application
-2. Press Ctrl+E
+2. Press ctrl+e
 3. Wait a moment for the API to process the text
 4. The selected text will be replaced with the grammatically corrected version
 
