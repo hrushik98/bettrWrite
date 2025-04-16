@@ -6,75 +6,85 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${RED}Grammar Correction Tool Uninstaller${NC}"
-echo "This script will uninstall the grammar correction tool."
+echo -e "${RED}bettrWrite Uninstaller${NC}"
+echo "This script will remove the bettrWrite tool and its configuration."
 read -p "Are you sure you want to continue? (y/n): " confirm
 
-if [[ "$confirm" != [Yy]* ]]; then
+if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
     echo "Uninstallation cancelled."
     exit 0
 fi
 
-# Stop xbindkeys
-echo -e "\n${YELLOW}Stopping xbindkeys...${NC}"
+# Config locations
+CONFIG_DIR="$HOME/.config/bettrwrite"
+LOG_FILE="$HOME/bettrwrite_errors.log"
+XBINDKEYSRC_FILE="$HOME/.xbindkeysrc"
+AUTOSTART_FILE="$HOME/.config/autostart/xbindkeys.desktop"
+
+# Stop xbindkeys (optional, user might have other bindings)
+echo -e "\n${YELLOW}Stopping xbindkeys (if running)...${NC}"
 pkill xbindkeys 2>/dev/null
 
-# Remove script
-echo -e "\n${YELLOW}Removing script...${NC}"
-if [ -f ~/grammar_correct.sh ]; then
-    rm ~/grammar_correct.sh
-    echo "Removed ~/grammar_correct.sh"
+# Remove configuration directory and script
+echo -e "\n${YELLOW}Removing configuration directory and script...${NC}"
+if [ -d "$CONFIG_DIR" ]; then
+    rm -rf "$CONFIG_DIR"
+    echo "Removed $CONFIG_DIR"
 else
-    echo "Script not found at ~/grammar_correct.sh"
+    echo "Configuration directory not found at $CONFIG_DIR"
 fi
 
 # Remove log file
 echo -e "\n${YELLOW}Removing log file...${NC}"
-if [ -f ~/grammar_correction_errors.log ]; then
-    rm ~/grammar_correction_errors.log
-    echo "Removed ~/grammar_correction_errors.log"
+if [ -f "$LOG_FILE" ]; then
+    rm "$LOG_FILE"
+    echo "Removed $LOG_FILE"
 else
-    echo "Log file not found"
+    echo "Log file not found at $LOG_FILE"
 fi
 
-# Remove keyboard shortcut config
-echo -e "\n${YELLOW}Removing keyboard shortcut configuration...${NC}"
-if [ -f ~/.xbindkeysrc ]; then
-    # Check if the file only contains our shortcut
-    if grep -q "grammar_correct.sh" ~/.xbindkeysrc && [ $(wc -l < ~/.xbindkeysrc) -le 2 ]; then
-        rm ~/.xbindkeysrc
-        echo "Removed ~/.xbindkeysrc"
+# Remove keyboard shortcut config from .xbindkeysrc
+echo -e "\n${YELLOW}Removing keyboard shortcut configuration from $XBINDKEYSRC_FILE...${NC}"
+if [ -f "$XBINDKEYSRC_FILE" ]; then
+    # Count lines before
+    lines_before=$(wc -l < "$XBINDKEYSRC_FILE")
+    # Remove lines containing the script path and comment lines added by installer
+    sed -i '/bettrwrite\.sh/d' "$XBINDKEYSRC_FILE"
+    sed -i '/# bettrWrite Shortcuts (Managed by installer)/d' "$XBINDKEYSRC_FILE"
+     # Remove blank lines at the end potentially left by sed
+    sed -i -e :a -e '/^\n*$/{$d;N;};/\n$/ba' "$XBINDKEYSRC_FILE"
+    lines_after=$(wc -l < "$XBINDKEYSRC_FILE")
+    if [ "$lines_before" -ne "$lines_after" ]; then
+        echo "Removed bettrWrite shortcuts from $XBINDKEYSRC_FILE"
+        echo -e "${YELLOW}You may need to restart xbindkeys manually if it was running (${GREEN}xbindkeys${NC}).${NC}"
     else
-        # Remove just our shortcut
-        sed -i '/grammar_correct.sh/,+1d' ~/.xbindkeysrc
-        echo "Removed our shortcut from ~/.xbindkeysrc"
+         echo "No bettrWrite shortcuts found in $XBINDKEYSRC_FILE"
     fi
 else
-    echo "Keyboard shortcut config not found"
+    echo "Keyboard shortcut config file ($XBINDKEYSRC_FILE) not found"
 fi
 
 # Remove autostart entry
 echo -e "\n${YELLOW}Removing autostart entry...${NC}"
-if [ -f ~/.config/autostart/xbindkeys.desktop ]; then
-    rm ~/.config/autostart/xbindkeys.desktop
-    echo "Removed autostart entry"
+if [ -f "$AUTOSTART_FILE" ]; then
+    rm "$AUTOSTART_FILE"
+    echo "Removed autostart entry $AUTOSTART_FILE"
 else
     echo "Autostart entry not found"
 fi
 
-# Option to remove API key from .bashrc
-echo -e "\n${YELLOW}API Key Management${NC}"
-read -p "Do you want to remove the OPENAI_API_KEY from your .bashrc? (y/n): " remove_key
-
-if [[ "$remove_key" =~ ^[Yy]$ ]]; then
-    if grep -q "export OPENAI_API_KEY" ~/.bashrc; then
+# Option to remove API key from .bashrc (though it's now primarily in config)
+echo -e "\n${YELLOW}API Key Cleanup (Optional)${NC}"
+echo "Note: API key is primarily stored in $CONFIG_DIR/config.json (which was removed)."
+if grep -q "export OPENAI_API_KEY" ~/.bashrc; then
+ read -p "Do you want to remove the OPENAI_API_KEY export from your ~/.bashrc? (y/n): " remove_key_bashrc
+ if [[ "$remove_key_bashrc" =~ ^[Yy]$ ]]; then
         sed -i '/export OPENAI_API_KEY/d' ~/.bashrc
-        echo "Removed API key from ~/.bashrc"
+        echo "Removed API key export from ~/.bashrc"
         echo "Please restart your terminal or run 'source ~/.bashrc' to apply the changes."
-    else
-        echo "No API key found in ~/.bashrc"
-    fi
+ fi
 fi
 
+
 echo -e "\n${GREEN}Uninstallation complete!${NC}"
-echo "You may want to restart your session to ensure all changes take effect."
+echo "If xbindkeys was managing other shortcuts, you might need to restart it manually ('xbindkeys')."
