@@ -1,7 +1,5 @@
 # bettrWrite
 
-# Universal Text Processing Tool for Linux (OpenAI & Ollama)
-
 A simple yet powerful tool that lets you process selected text using AI models by pressing configurable keyboard shortcuts. Send selected text to OpenAI's API or a local Ollama instance, get the processed version back, and automatically replace the original text.
 
 Ideal for grammar correction, summarization, translation, code explanation, and more!
